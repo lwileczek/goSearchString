@@ -9,16 +9,18 @@ This repository was inspired by two others:
 I read a blog post from Ben Hoyt where we talked about I/O was no longer the bottle neck and he talked a little about fast text search 
 [See here](https://benhoyt.com/writings/io-is-no-longer-the-bottleneck/). 
 I then saw [this YouTube](https://www.youtube.com/watch?v=U16RnpV48KQ) From the Primeagen.
-These made me want to work through writing the solutions in Go since I love go and we can easily benchmark
+These made me want to work through writing the solutions in Go since I love Go and we can easily benchmark
 each function with Go's standard utilities.
+
+# Problem
+The problem comes from Advent of Code year 2022, day 6. Find 14 unique characters consecutively and then return the index right after.
 
 ## Data
 To generate data I wrote a little function that will make a rather large 800MiB file where we 
-guarentee a solution at the end if it does not randomly happen before.
+guarentee a solution. 
+This would be good if we wanted to make a really big file in the GBs.
+Otherwise I create the array in memory since most computers today can fit 800MiB in memory without a problem.
 
-```bash
-$ go run main.go generate_data.go
-```
 
 ## Benchmarks
 
@@ -60,3 +62,6 @@ I'm not sure if the degradation in the David A Perez algorithm is because I did 
 or a difference in Go vs. Rust.
 In the video with the Primeagen, he was showing off what the compiler was doing with reverse iterators
 where I just did a reverse for loop.
+
+## Improvements
+Some possible improvements are: Reading a file in chunks, especially if it is a very large file.

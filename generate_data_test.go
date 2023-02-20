@@ -12,7 +12,7 @@ const (
 )
 
 func TestGenerateData(t *testing.T) {
-	fileSize := 1024 * 1024 * 2
+	fileSize := 4096
 	if _, err := os.Stat(testFile); errors.Is(err, os.ErrNotExist) {
 		generateData(fileSize, testFile)
 	} else {

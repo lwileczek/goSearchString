@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -26,6 +27,23 @@ func main() {
 		// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
 		fmt.Println("I don't know what the heck is going on")
 		panic(err)
-
 	}
+
+	dat, err := os.ReadFile(exampleData)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//Test Methods
+	idx, err := benny(dat)
+	if err != nil {
+		log.Printf("error finding solution using benny approach\n%s\n", err.Error())
+	}
+	log.Println("Solution from the benny Appoach:", idx)
+
+	idx, err = naive(dat)
+	if err != nil {
+		log.Printf("error finding solution using Naive approach\n%s\n", err.Error())
+	}
+	log.Println("Solution from the Naive Appoach:", idx)
 }

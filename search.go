@@ -112,7 +112,7 @@ func davidAPerez(dat []byte) (int, error) {
 
 	position := 0
 	for position < len(dat)-14 {
-		state &= 0x00000000
+		state = 0 // 0x00000000
 		for x := 13; x >= 0; x-- {
 			bitIndex = dat[position+x] % 32
 			alreadySet = (state & (1 << bitIndex)) != 0
@@ -120,9 +120,10 @@ func davidAPerez(dat []byte) (int, error) {
 			if alreadySet {
 				position += x + 1
 				break
-			} else if bits.OnesCount32(state) == 14 {
-				return position + 14, nil
 			}
+		}
+		if bits.OnesCount32(state) == 14 {
+			return position + 14, nil
 		}
 	}
 
@@ -135,9 +136,9 @@ func parallelFind(dat []byte, algo searchFunc) (int, error) {
 	dataLength := len(dat)
 	dataChunkSize := dataLength / nCPU
 	ch := make(chan int)
-	errCh := make(chan int)
+	errCh := make(chan struct{})
 	var end int
-	for start := 0; start < len(dat); start += dataChunkSize {
+	for start := 0; start < dataLength; start += dataChunkSize {
 		//A little overlap to ensure the solution is not along a break
 		end = start + dataChunkSize + 14
 		if end > dataLength {
@@ -145,7 +146,7 @@ func parallelFind(dat []byte, algo searchFunc) (int, error) {
 		}
 		go func(b []byte, startIdx int) {
 			if len(b) < 14 {
-				errCh <- 1
+				errCh <- struct{}{}
 				return
 			}
 			i, err := algo(b)
@@ -153,22 +154,22 @@ func parallelFind(dat []byte, algo searchFunc) (int, error) {
 				if err.Error() != "Never found a proper solution" {
 					log.Println(err)
 				}
-				errCh <- 1
+				errCh <- struct{}{}
 				return
 			}
 			ch <- (i + startIdx)
 		}(dat[start:end], start)
 	}
 	// If all tasks end without finding a solution, end
-	go func(n int) {
+	go func(n *int) {
 		finishedTasks := 0
 		for range errCh {
 			finishedTasks++
-			if finishedTasks == n-1 {
+			if finishedTasks == *n-1 {
 				ch <- 0
 			}
 		}
-	}(nCPU)
+	}(&nCPU)
 	ans := <-ch
 	if ans == 0 {
 		return 0, fmt.Errorf("Never found a proper solution")

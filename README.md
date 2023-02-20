@@ -23,7 +23,7 @@ $ go run main.go generate_data.go
 ## Benchmarks
 
 ```
-$ go test ./... -bench=. -benchmem
+$ go test ./... -bench=.
 ```
 
 ### Results
@@ -41,7 +41,7 @@ BenchmarkHashWithBreak-8   	       1	12842798109 ns/op
 BenchmarkSliceWindow-8     	       1	 2405292994 ns/op
 BenchmarkVectorWindow-8    	       1	 1135809643 ns/op
 BenchmarkBenny-8           	      14	   81657561 ns/op
-BenchmarkParez-8           	      10	  109475645 ns/op
+BenchmarkPerez-8           	      10	  109475645 ns/op
 BenchmarkParallel-8        	      91	   21385322 ns/op
 PASS
 ok  	github.com/lwileczek/goSearchString	99.112s
@@ -53,7 +53,7 @@ ok  	github.com/lwileczek/goSearchString	99.112s
 |BenchmarkSliceWindow |  30.0 |	2995% |
 |BenchmarkVectorWindow |  64.5 |	6454% |
 |BenchmarkBenny |  910.7 |	91,068% |
-|BenchmarkParez |  679.0 | 	67,902% |
+|BenchmarkPerez |  679.0 | 	67,902% |
 |BenchmarkParallel (8 cpu) |  3,480.1 | 348, 015% |
 
 I'm not sure if the degradation in the David A Perez algorithm is because I did not program it correctly

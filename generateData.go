@@ -67,3 +67,20 @@ func generateBufferedData(stringLength int) ([]byte, int) {
 	}
 	return buf, answerIndex + 14
 }
+
+func generateNoSolution(stringLength int) []byte {
+	if stringLength < 14 {
+		stringLength = problemSize
+	}
+	buf := make([]byte, stringLength)
+
+	nonUnique := "abcdefghijklm"
+	var randomRune int
+	var val byte
+	for i := 0; i < (stringLength); i++ {
+		randomRune = rand.Intn(13)
+		val = nonUnique[randomRune]
+		buf[i] = val
+	}
+	return buf
+}

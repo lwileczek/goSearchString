@@ -108,10 +108,11 @@ func benny(dat []byte) (int, error) {
 func davidAPerez(dat []byte) (int, error) {
 	var bitIndex byte
 	var alreadySet bool
+	var state uint32
 
 	position := 0
 	for position < len(dat)-14 {
-		var state uint32
+		state &= 0x00000000
 		for x := 13; x >= 0; x-- {
 			bitIndex = dat[position+x] % 32
 			alreadySet = (state & (1 << bitIndex)) != 0
@@ -128,22 +129,49 @@ func davidAPerez(dat []byte) (int, error) {
 	return 0, fmt.Errorf("Never found a proper solution")
 }
 
-//TODO: Need to add Error Group to this
+//TODO: Should probably do an error group
 func parallelFind(dat []byte, algo searchFunc) (int, error) {
 	nCPU := runtime.NumCPU()
-	dataChunkSize := len(dat) / nCPU
+	dataLength := len(dat)
+	dataChunkSize := dataLength / nCPU
 	ch := make(chan int)
-	for c := 0; c < nCPU-1; c++ {
+	errCh := make(chan int)
+	var end int
+	for start := 0; start < len(dat); start += dataChunkSize {
+		//A little overlap to ensure the solution is not along a break
+		end = start + dataChunkSize + 14
+		if end > dataLength {
+			end = dataLength
+		}
 		go func(b []byte, startIdx int) {
+			if len(b) < 14 {
+				errCh <- 1
+				return
+			}
 			i, err := algo(b)
 			if err != nil {
 				if err.Error() != "Never found a proper solution" {
 					log.Println(err)
 				}
+				errCh <- 1
+				return
 			}
-			ch <- i + startIdx
-		}(dat[(c*dataChunkSize):((c+1)*dataChunkSize)], c*dataChunkSize)
+			ch <- (i + startIdx)
+		}(dat[start:end], start)
 	}
+	// If all tasks end without finding a solution, end
+	go func(n int) {
+		finishedTasks := 0
+		for range errCh {
+			finishedTasks++
+			if finishedTasks == n-1 {
+				ch <- 0
+			}
+		}
+	}(nCPU)
 	ans := <-ch
+	if ans == 0 {
+		return 0, fmt.Errorf("Never found a proper solution")
+	}
 	return ans, nil
 }

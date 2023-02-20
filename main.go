@@ -41,9 +41,15 @@ func main() {
 	}
 	log.Println("Solution from the benny Appoach:", idx)
 
-	idx, err = naive(dat)
+	//idx, err = naive(dat)
+	//if err != nil {
+	//	log.Printf("error finding solution using Naive approach\n%s\n", err.Error())
+	//}
+	//log.Println("Solution from the Naive Appoach:", idx)
+	//Binary backwards
+	idx, err = davidAPerez(dat)
 	if err != nil {
-		log.Printf("error finding solution using Naive approach\n%s\n", err.Error())
+		log.Printf("error finding solution using Perez approach\n%s\n", err.Error())
 	}
-	log.Println("Solution from the Naive Appoach:", idx)
+	log.Println("Solution from the Paerez Appoach:", idx)
 }

@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"math/bits"
+	"runtime"
 )
 
-//TODO: Read the file in chunks
+type searchFunc func([]byte) (int, error)
 
 func naive(dat []byte) (int, error) {
 	set := make(UniqueLetters)
@@ -94,9 +96,6 @@ func benny(dat []byte) (int, error) {
 	for pos := 0; pos < len(dat)-14; pos++ {
 		first := dat[pos]
 		filter ^= 1 << (dat[pos+13] % 32)
-		if pos < 10 {
-			fmt.Printf("%b\n", filter)
-		}
 		if bits.OnesCount32(filter) == 14 {
 			return pos + 14, nil
 		}
@@ -104,4 +103,47 @@ func benny(dat []byte) (int, error) {
 	}
 
 	return 0, fmt.Errorf("Never found a proper solution")
+}
+
+func davidAPerez(dat []byte) (int, error) {
+	var bitIndex byte
+	var alreadySet bool
+
+	position := 0
+	for position < len(dat)-14 {
+		var state uint32
+		for x := 13; x >= 0; x-- {
+			bitIndex = dat[position+x] % 32
+			alreadySet = (state & (1 << bitIndex)) != 0
+			state |= 1 << bitIndex
+			if alreadySet {
+				position += x + 1
+				break
+			} else if bits.OnesCount32(state) == 14 {
+				return position + 14, nil
+			}
+		}
+	}
+
+	return 0, fmt.Errorf("Never found a proper solution")
+}
+
+//TODO: Need to add Error Group to this
+func parallelFind(dat []byte, algo searchFunc) (int, error) {
+	nCPU := runtime.NumCPU()
+	dataChunkSize := len(dat) / nCPU
+	ch := make(chan int)
+	for c := 0; c < nCPU-1; c++ {
+		go func(b []byte, startIdx int) {
+			i, err := algo(b)
+			if err != nil {
+				if err.Error() != "Never found a proper solution" {
+					log.Println(err)
+				}
+			}
+			ch <- i + startIdx
+		}(dat[(c*dataChunkSize):((c+1)*dataChunkSize)], c*dataChunkSize)
+	}
+	ans := <-ch
+	return ans, nil
 }

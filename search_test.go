@@ -63,27 +63,31 @@ func TestBenny(t *testing.T) {
 	}
 }
 
-func BenchmarkVectorWindow(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := findWithArray(bytes)
-		if err != nil {
-			panic(err)
-		}
+func TestParez(t *testing.T) {
+	testBytes, ans := generateBufferedData(4096)
+	i, err := davidAPerez(testBytes)
+	if err != nil {
+		t.Error(err)
+	}
+	if i != ans {
+		t.Errorf("Did not properly find the answer. Correct answer is %d but got %d\n", ans, i)
+	}
+}
+
+func TestParallel(t *testing.T) {
+	testBytes, ans := generateBufferedData(4096 * 4)
+	i, err := parallelFind(testBytes, benny)
+	if err != nil {
+		t.Error(err)
+	}
+	if i != ans {
+		t.Errorf("Did not properly find the answer. Correct answer is %d but got %d\n", ans, i)
 	}
 }
 
 func BenchmarkNaive(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := naive(bytes)
-		if err != nil {
-			panic(err)
-		}
-	}
-}
-
-func BenchmarkSliceWindow(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		_, err := findWithSlice(bytes)
 		if err != nil {
 			panic(err)
 		}
@@ -99,9 +103,43 @@ func BenchmarkHashWithBreak(b *testing.B) {
 	}
 }
 
+func BenchmarkSliceWindow(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := findWithSlice(bytes)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func BenchmarkVectorWindow(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := findWithArray(bytes)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func BenchmarkBenny(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		_, err := benny(bytes)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+func BenchmarkParez(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := davidAPerez(bytes)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+func BenchmarkParallel(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		_, err := parallelFind(bytes, benny)
 		if err != nil {
 			panic(err)
 		}

@@ -28,7 +28,7 @@ func main() {
 
 	fmt.Println("Starting search")
 	start := time.Now()
-	idx, err := parallelSearch(bytes, benny, threads, context.Background())
+	idx, err := parallelSearch(context.Background(), bytes, benny, threads)
 	//idx, err := benny(bytes)
 	t := time.Now()
 	elapsed := t.Sub(start)

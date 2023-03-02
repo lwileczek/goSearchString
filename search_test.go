@@ -107,7 +107,7 @@ func TestPerez(t *testing.T) {
 
 func TestParallel(t *testing.T) {
 	testBytes, ans := generateBufferedData(4096 * 8)
-	i, err := parallelSearch(testBytes, davidAPerez, 4, context.Background())
+	i, err := parallelSearch(context.Background(), testBytes, davidAPerez, 4)
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,7 +115,7 @@ func TestParallel(t *testing.T) {
 		t.Errorf("Did not properly find the answer. Correct answer is %d but got %d\n", ans, i)
 	}
 	badBytes := generateNoSolution(4096 * 8)
-	i, err = parallelSearch(badBytes, davidAPerez, 4, context.Background())
+	i, err = parallelSearch(context.Background(), badBytes, davidAPerez, 4)
 	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
@@ -175,7 +175,7 @@ func BenchmarkPerez(b *testing.B) {
 }
 func BenchmarkParallel(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_, err := parallelSearch(bytes, benny, 4, context.Background())
+		_, err := parallelSearch(context.Background(), bytes, benny, 4)
 		if err != nil {
 			panic(err)
 		}

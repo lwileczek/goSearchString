@@ -14,6 +14,7 @@ each function with Go's standard utilities.
 
 # Problem
 The problem comes from Advent of Code year 2022, day 6. Find 14 unique characters consecutively and then return the index right after.
+https://adventofcode.com/2022/day/6
 
 ## Data
 To generate data I wrote a little function that will make a rather large 800MiB file where we 
@@ -64,4 +65,7 @@ In the video with the Primeagen, he was showing off what the compiler was doing 
 where I just did a reverse for loop.
 
 ## Improvements
-Some possible improvements are: Reading a file in chunks, especially if it is a very large file.
+Some possible improvements are:
+ - [ ] Reading a file in chunks, especially if it is a very large file.
+ - [x] Error Groups
+ - [ ] Can we improve on the DavidAPerez Algorithm? The idea of jumping to after there was a duplicate but without adding another loop which might be slowing things down

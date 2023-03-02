@@ -1,7 +1,7 @@
 package main
 
 import (
-    "fmt"
+	"fmt"
 )
 
 //UniqueLetters - O(1) Set of Unique ASCII lowercase letters
@@ -39,9 +39,11 @@ func (u UniqueLetters) Has(letter byte) bool {
 	return ok
 }
 
+//DidNotFind A custom error to report the search returned no solution
 type DidNotFind struct {
-    FuncName string
+	FuncName string
 }
+
 func (m *DidNotFind) Error() string {
-    return fmt.Sprintf("%s: did not find an answer\n", m.FuncName)
+	return fmt.Sprintf("%s: did not find an answer\n", m.FuncName)
 }

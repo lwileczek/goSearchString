@@ -131,7 +131,7 @@ func davidAPerez(dat []byte) (int, error) {
 	return -1, nil //&DidNotFind{FuncName: "davidAPerez"}
 }
 
-func parallelSearch(dat []byte, algo searchFunc, thd int, ctx context.Context) (int, error) {
+func parallelSearch(ctx context.Context, dat []byte, algo searchFunc, thd int) (int, error) {
 	dataLength := len(dat)
 	dataChunkSize := dataLength / thd
 	g, ctx := errgroup.WithContext(ctx)

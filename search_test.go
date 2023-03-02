@@ -1,7 +1,6 @@
 package main
 
 import (
-    "fmt"
 	"context"
 	"testing"
 )
@@ -117,7 +116,7 @@ func TestParallel(t *testing.T) {
 	}
 	badBytes := generateNoSolution(4096 * 8)
 	i, err = parallelSearch(badBytes, davidAPerez, 4, context.Background())
-    if i != -1 {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -175,13 +174,10 @@ func BenchmarkPerez(b *testing.B) {
 	}
 }
 func BenchmarkParallel(b *testing.B) {
-    bts := bytes
 	for i := 0; i < b.N; i++ {
-		_, err := parallelSearch(bts, benny, 12, context.Background())
+		_, err := parallelSearch(bytes, benny, 4, context.Background())
 		if err != nil {
-			//panic(err)
-            fmt.Println(i)
-			fmt.Println(err)
+			panic(err)
 		}
 	}
 }

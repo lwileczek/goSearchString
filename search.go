@@ -21,7 +21,7 @@ func naive(dat []byte) (int, error) {
 		}
 		set.Clear()
 	}
-	return -1, &DidNotFind{FuncName: "naive"}
+	return -1, nil //&DidNotFind{FuncName: "naive"}
 }
 
 func checkWindow(s []byte) bool {
@@ -42,7 +42,7 @@ func findWithBreakOnDuplicate(dat []byte) (int, error) {
 			return p + 14, nil
 		}
 	}
-	return -1, &DidNotFind{FuncName: "breakOnDuplicate"}
+	return -1, nil //&DidNotFind{FuncName: "breakOnDuplicate"}
 }
 
 func checkSliceWindow(s []byte) bool {
@@ -64,7 +64,7 @@ func findWithSlice(dat []byte) (int, error) {
 			return p + 14, nil
 		}
 	}
-	return -1, &DidNotFind{FuncName: "findWithSlice"}
+	return -1, nil // &DidNotFind{FuncName: "findWithSlice"}
 }
 
 func checkArrayWindow(s []byte) bool {
@@ -86,7 +86,7 @@ func findWithArray(dat []byte) (int, error) {
 			return p + 14, nil
 		}
 	}
-	return -1, &DidNotFind{FuncName: "findWithArray"}
+	return -1, nil //&DidNotFind{FuncName: "findWithArray"}
 }
 
 func benny(dat []byte) (int, error) {
@@ -103,7 +103,7 @@ func benny(dat []byte) (int, error) {
 		filter ^= 1 << (first % 32)
 	}
 
-	return -1, &DidNotFind{FuncName: "benny"}
+	return -1, nil //&DidNotFind{FuncName: "benny"}
 }
 
 func davidAPerez(dat []byte) (int, error) {
@@ -128,7 +128,7 @@ func davidAPerez(dat []byte) (int, error) {
 		}
 	}
 
-	return -1, &DidNotFind{FuncName: "davidAPerez"}
+	return -1, nil //&DidNotFind{FuncName: "davidAPerez"}
 }
 
 func parallelSearch(dat []byte, algo searchFunc, thd int, ctx context.Context) (int, error) {
@@ -138,9 +138,9 @@ func parallelSearch(dat []byte, algo searchFunc, thd int, ctx context.Context) (
 	ch := make(chan int, 1) // buffer of one allows exactly one answer
 	for start := 0; start < dataLength-15; start += dataChunkSize {
 		start := start
-		end := start + dataChunkSize + 15
+		end := start + dataChunkSize + 25
 		if end > dataLength {
-			end = dataLength-1
+			end = dataLength - 1
 		}
 		if (end - start) <= 14 {
 			continue

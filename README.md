@@ -49,14 +49,14 @@ PASS
 ok  	github.com/lwileczek/goSearchString	99.112s
 ```
 |Algorithm | x Faster | % Faster |
-|:---|---:|---|
+|:---|---:|---:|
 |BenchmarkNaive | 0 | 0 |
 |BenchmarkHashWithBreak | 4.8 | 480% |
 |BenchmarkSliceWindow |  30.0 |	2995% |
 |BenchmarkVectorWindow |  64.5 |	6454% |
 |BenchmarkBenny |  910.7 |	91,068% |
 |BenchmarkPerez |  679.0 | 	67,902% |
-|BenchmarkParallel (8 cpu) |  3,480.1 | 348, 015% |
+|BenchmarkParallel (8 cpu) |  3,480.1 | 348,015% |
 
 I'm not sure if the degradation in David A Perez's algorithm is because I did not program it correctly
 or a difference in Go vs. Rust.

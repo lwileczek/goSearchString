@@ -9,20 +9,22 @@ import (
 
 const (
 	exampleData = "./LargeTextData.txt"
-	problemSize = 1024 * 1024 * 80 //0 // 800MiB
+	problemSize = 1024 * 1024 // 1MiB
 )
 
 var (
 	threads int
+	size    int
 )
 
 func main() {
 	//TODO: Let user pick the search algorithm via flag
 	flag.IntVar(&threads, "th", 1, "The number of threads to use in a parallel search")
+	flag.IntVar(&size, "size", 100, "The size of the problem to solve in MiB")
 	flag.Parse()
 
 	fmt.Println("Creating data")
-	bytes, answer := generateBufferedData(problemSize)
+	bytes, answer := generateBufferedData(size * problemSize)
 
 	fmt.Println("Starting search")
 	start := time.Now()

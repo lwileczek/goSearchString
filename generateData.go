@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"time"
 )
 
 func generateData(stringLength int, fileName string) {
@@ -45,6 +46,7 @@ func generateData(stringLength int, fileName string) {
 }
 
 func generateBufferedData(stringLength int) ([]byte, int) {
+	rand.Seed(time.Now().Unix())
 	if stringLength < 14 {
 		stringLength = problemSize
 	}
@@ -57,7 +59,7 @@ func generateBufferedData(stringLength int) ([]byte, int) {
 	var randomRune int
 	var val byte
 	for i := 0; i < (stringLength); i++ {
-		if (answerIndex <= i) && (i <= answerIndex+14) {
+		if (answerIndex <= i) && (i <= answerIndex+13) {
 			val = ans[i%14]
 		} else {
 			randomRune = rand.Intn(13)

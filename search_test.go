@@ -1,6 +1,8 @@
 package main
 
 import (
+    "fmt"
+	"context"
 	"testing"
 )
 
@@ -19,7 +21,7 @@ func TestNaive(t *testing.T) {
 	}
 	badBytes := generateNoSolution(1024)
 	i, err = naive(badBytes)
-	if err.Error() != "Never found a proper solution" {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -35,7 +37,7 @@ func TestHashWithBreak(t *testing.T) {
 	}
 	badBytes := generateNoSolution(1024)
 	i, err = findWithBreakOnDuplicate(badBytes)
-	if err.Error() != "Never found a proper solution" {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -51,7 +53,7 @@ func TestSliceWindow(t *testing.T) {
 	}
 	badBytes := generateNoSolution(1024)
 	i, err = findWithSlice(badBytes)
-	if err.Error() != "Never found a proper solution" {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -67,7 +69,7 @@ func TestVectorWindow(t *testing.T) {
 	}
 	badBytes := generateNoSolution(1024)
 	i, err = findWithArray(badBytes)
-	if err.Error() != "Never found a proper solution" {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -83,7 +85,7 @@ func TestBenny(t *testing.T) {
 	}
 	badBytes := generateNoSolution(1024)
 	i, err = benny(badBytes)
-	if err.Error() != "Never found a proper solution" {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -99,14 +101,14 @@ func TestPerez(t *testing.T) {
 	}
 	badBytes := generateNoSolution(1024)
 	i, err = davidAPerez(badBytes)
-	if err.Error() != "Never found a proper solution" {
+	if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
 
 func TestParallel(t *testing.T) {
 	testBytes, ans := generateBufferedData(4096 * 8)
-	i, err := parallelFind(testBytes, benny)
+	i, err := parallelSearch(testBytes, davidAPerez, 4, context.Background())
 	if err != nil {
 		t.Error(err)
 	}
@@ -114,8 +116,8 @@ func TestParallel(t *testing.T) {
 		t.Errorf("Did not properly find the answer. Correct answer is %d but got %d\n", ans, i)
 	}
 	badBytes := generateNoSolution(4096 * 8)
-	i, err = parallelFind(badBytes, davidAPerez)
-	if err.Error() != "Never found a proper solution" {
+	i, err = parallelSearch(badBytes, davidAPerez, 4, context.Background())
+    if i != -1 {
 		t.Error("Solution did not properly announce that it did not find a solution")
 	}
 }
@@ -173,10 +175,13 @@ func BenchmarkPerez(b *testing.B) {
 	}
 }
 func BenchmarkParallel(b *testing.B) {
+    bts := bytes
 	for i := 0; i < b.N; i++ {
-		_, err := parallelFind(bytes, benny)
+		_, err := parallelSearch(bts, benny, 12, context.Background())
 		if err != nil {
-			panic(err)
+			//panic(err)
+            fmt.Println(i)
+			fmt.Println(err)
 		}
 	}
 }

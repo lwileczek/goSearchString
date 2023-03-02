@@ -1,10 +1,11 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"math/bits"
-	"runtime"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type searchFunc func([]byte) (int, error)
@@ -20,7 +21,7 @@ func naive(dat []byte) (int, error) {
 		}
 		set.Clear()
 	}
-	return 0, fmt.Errorf("Never found a proper solution")
+	return -1, &DidNotFind{FuncName: "naive"}
 }
 
 func checkWindow(s []byte) bool {
@@ -41,7 +42,7 @@ func findWithBreakOnDuplicate(dat []byte) (int, error) {
 			return p + 14, nil
 		}
 	}
-	return 0, fmt.Errorf("Never found a proper solution")
+	return -1, &DidNotFind{FuncName: "breakOnDuplicate"}
 }
 
 func checkSliceWindow(s []byte) bool {
@@ -63,7 +64,7 @@ func findWithSlice(dat []byte) (int, error) {
 			return p + 14, nil
 		}
 	}
-	return 0, fmt.Errorf("Never found a proper solution")
+	return -1, &DidNotFind{FuncName: "findWithSlice"}
 }
 
 func checkArrayWindow(s []byte) bool {
@@ -85,7 +86,7 @@ func findWithArray(dat []byte) (int, error) {
 			return p + 14, nil
 		}
 	}
-	return 0, fmt.Errorf("Never found a proper solution")
+	return -1, &DidNotFind{FuncName: "findWithArray"}
 }
 
 func benny(dat []byte) (int, error) {
@@ -102,7 +103,7 @@ func benny(dat []byte) (int, error) {
 		filter ^= 1 << (first % 32)
 	}
 
-	return 0, fmt.Errorf("Never found a proper solution")
+	return -1, &DidNotFind{FuncName: "benny"}
 }
 
 func davidAPerez(dat []byte) (int, error) {
@@ -127,52 +128,58 @@ func davidAPerez(dat []byte) (int, error) {
 		}
 	}
 
-	return 0, fmt.Errorf("Never found a proper solution")
+	return -1, &DidNotFind{FuncName: "davidAPerez"}
 }
 
-//TODO: Should probably do an error group
-func parallelFind(dat []byte, algo searchFunc) (int, error) {
-	nCPU := runtime.NumCPU()
+func parallelSearch(dat []byte, algo searchFunc, thd int, ctx context.Context) (int, error) {
 	dataLength := len(dat)
-	dataChunkSize := dataLength / nCPU
-	ch := make(chan int)
-	errCh := make(chan struct{})
-	var end int
-	for start := 0; start < dataLength; start += dataChunkSize {
-		//A little overlap to ensure the solution is not along a break
-		end = start + dataChunkSize + 14
+	dataChunkSize := dataLength / thd
+	g, ctx := errgroup.WithContext(ctx)
+	ch := make(chan int, 1) // buffer of one allows exactly one answer
+	for start := 0; start < dataLength-15; start += dataChunkSize {
+		start := start
+		end := start + dataChunkSize + 15
 		if end > dataLength {
-			end = dataLength
+			end = dataLength-1
 		}
-		go func(b []byte, startIdx int) {
-			if len(b) < 14 {
-				errCh <- struct{}{}
-				return
-			}
-			i, err := algo(b)
+		if (end - start) <= 14 {
+			continue
+		}
+		g.Go(func() error {
+			//do stuff, return errors as needed, or nil
+			i, err := algo(dat[start:end])
 			if err != nil {
-				if err.Error() != "Never found a proper solution" {
-					log.Println(err)
-				}
-				errCh <- struct{}{}
-				return
+				return err
 			}
-			ch <- (i + startIdx)
-		}(dat[start:end], start)
-	}
-	// If all tasks end without finding a solution, end
-	go func(n *int) {
-		finishedTasks := 0
-		for range errCh {
-			finishedTasks++
-			if finishedTasks == *n-1 {
-				ch <- 0
+			if i < 0 {
+				return nil
 			}
-		}
-	}(&nCPU)
-	ans := <-ch
-	if ans == 0 {
-		return 0, fmt.Errorf("Never found a proper solution")
+			select {
+			case ch <- (i + start):
+				// race won, all done
+			case <-ctx.Done():
+				return ctx.Err()
+			default:
+				// not an error, just got scooped by another success
+			}
+			return nil
+		})
 	}
-	return ans, nil
+
+	go func() {
+		g.Wait()
+		close(ch) // signal for loop stop
+	}()
+
+	// Runs 0 or 1 time, ends when channel closes.
+	for val := range ch {
+		return val, nil
+	}
+
+	// Safe to call Wait twice.
+	if err := g.Wait(); err != nil {
+		return -1, fmt.Errorf("parallel find: %w", err)
+	}
+
+	return -1, &DidNotFind{FuncName: "parallel find"}
 }

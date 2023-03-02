@@ -1,5 +1,9 @@
 package main
 
+import (
+    "fmt"
+)
+
 //UniqueLetters - O(1) Set of Unique ASCII lowercase letters
 type UniqueLetters map[byte]struct{}
 
@@ -33,4 +37,11 @@ func (u UniqueLetters) Clear() {
 func (u UniqueLetters) Has(letter byte) bool {
 	_, ok := u[letter]
 	return ok
+}
+
+type DidNotFind struct {
+    FuncName string
+}
+func (m *DidNotFind) Error() string {
+    return fmt.Sprintf("%s: did not find an answer\n", m.FuncName)
 }

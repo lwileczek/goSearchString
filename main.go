@@ -1,46 +1,40 @@
 package main
 
 import (
-	"log"
+	"context"
+	"flag"
+	"fmt"
 	"time"
 )
 
 const (
 	exampleData = "./LargeTextData.txt"
-	problemSize = 1024 * 1024 * 800 // 800MiB
+	problemSize = 1024 * 1024 * 80 //0 // 800MiB
+)
+
+var (
+	threads int
 )
 
 func main() {
-	//if _, err := os.Stat(exampleData); err == nil {
-	//	// path/to/whatever exists
-	//	fmt.Println("File exists you should run benchmarks")
+	//TODO: Let user pick the search algorithm via flag
+	flag.IntVar(&threads, "th", 1, "The number of threads to use in a parallel search")
+	flag.Parse()
 
-	//} else if errors.Is(err, os.ErrNotExist) {
-	//	// path/to/whatever does *not* exist
-	//	generateData(1024*1024*10, exampleData)
-
-	//} else {
-	//	// Schrodinger: file may or may not exist. See err for details.
-
-	//	// Therefore, do *NOT* use !os.IsNotExist(err) to test for file existence
-	//	fmt.Println("I don't know what the heck is going on")
-	//	panic(err)
-	//}
-
-	//dat, err := os.ReadFile(exampleData)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	fmt.Println("Creating data")
 	bytes, answer := generateBufferedData(problemSize)
+
+	fmt.Println("Starting search")
 	start := time.Now()
-	idx, err := parallelFind(bytes, benny)
+	idx, err := parallelSearch(bytes, benny, threads, context.Background())
+	//idx, err := benny(bytes)
 	t := time.Now()
 	elapsed := t.Sub(start)
 	if err != nil {
-		log.Printf("error finding solution using parallel benny approach\n%s\n", err.Error())
+		fmt.Printf("error finding solution using parallel benny approach\n%s\n", err.Error())
 	}
 	if idx != answer {
-		log.Printf("Solved the problem incorrectly, answer was %d but we got %d\n", answer, idx)
+		fmt.Printf("Solved the problem incorrectly, answer was %d but we got %d\n", answer, idx)
 	}
-	log.Printf("We found the proper solution %d in %v\n", idx, elapsed)
+	fmt.Printf("We found the proper solution %d in %v\n", idx, elapsed)
 }
